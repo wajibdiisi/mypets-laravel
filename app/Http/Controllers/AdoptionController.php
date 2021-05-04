@@ -71,6 +71,11 @@ class AdoptionController extends Controller
             return Adoption::where('type',$type)->where('subtype',$slug)->get();
         }
     }
+    public function showAll()
+    {
+        return Adoption::all();
+
+    }
 
     /**
      * Show the form for editing the specified resource.

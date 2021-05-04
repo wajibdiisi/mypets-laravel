@@ -50,7 +50,7 @@ class animalController extends Controller
         //
     }
     public function showAll(){
-        return Animaltype::all();
+        return Animal::all();
     }
 
     public function showAnimal($type){

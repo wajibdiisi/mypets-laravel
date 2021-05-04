@@ -27,6 +27,7 @@ Route::get("animal/{type}",[AnimalController::class,'showAnimal']);
 Route::get("animal/{type}/{slug}",[animalController::class,'showAnimalSpecies']);
 Route::post("signup", [UserController::class,'userSignUp']);
 Route::post("login", [UserController::class,'userLogin']);
+Route::get("adoption/",[AdoptionController::class,'showAll']);
 Route::get("adoption/{type}",[AdoptionController::class,'show']);
 Route::get("adoption/{type}/{slug}",[AdoptionController::class,'show']);
 Route::middleware('auth:api')->group(function(){
