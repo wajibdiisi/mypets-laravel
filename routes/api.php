@@ -34,6 +34,7 @@ Route::get("adoption/",[AdoptionController::class,'showAll']);
 Route::get("adoption/detail/{adoption_id}",[AdoptionController::class,'getSpecificAdoption']);
 Route::get("profile/adoption/{id_user}",[AdoptionController::class,'userAdoption']);
 Route::get("profile/moment/{id_user}",[MomentController::class,'getMoment']);
+Route::get("moment/{breeds_type}",[MomentController::class,'getMomentByBreeds']);
 Route::get("adoption/{adoption_id}/{count}",[AdoptionController::class,'adoptionImage']);
 Route::get("adoption/{type}",[AdoptionController::class,'show']);
 Route::get("adoption/{type}/{slug}",[AdoptionController::class,'show']);

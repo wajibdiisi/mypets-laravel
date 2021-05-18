@@ -71,4 +71,14 @@ class MomentController extends Controller
         };
         return $moment;
    }
+   public function getMomentByBreeds($breeds_type){
+    $moment = Moment::where('animal_type',$breeds_type)->get();
+    foreach($moment as &$adopt){
+        $user = User::where('id',$adopt->id_user)->first();
+        $adopt->owner  = $user->full_name;
+        $adopt->owner_avatar = $user->picture;
+
+    };
+    return $moment;
+}
 }
