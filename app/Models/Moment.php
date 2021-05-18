@@ -5,23 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Adoption extends Model
+class Moment extends Model
 {
     use HasFactory;
-    protected $table = 'adoption';
+    protected $table = 'share_moment';
     protected $fillable = [
+        'id_user',
+        'title',
+        'description',
         'animal_name',
         'animal_type',
-        'name',
-        'description',
-        'age',
-        'color',
-        'owner',
-        'gender',
-        'body',
-        'health',
         'location',
-        'id_user',
         'picture'
     ];
 

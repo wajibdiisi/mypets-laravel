@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Animal;
 use App\Models\Animaltype;
+use App\Models\DogDetail;
 
 class animalController extends Controller
 {
@@ -58,6 +59,11 @@ class animalController extends Controller
     }
     public function showAnimalSpecies($type,$slug){
         return Animal::where('type',$type)->where('slug',$slug)->get();
+    }
+    public function showAnimalDetail($type,$slug){
+        if($type == "dog"){
+            return DogDetail::where('slug',$slug)->get();
+        }
     }
 
     /**

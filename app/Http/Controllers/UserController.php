@@ -20,11 +20,23 @@ class UserController extends Controller
             "name"              =>          "required",
             "email"             =>          "required|email",
             "password"          =>          "required",
-            "phone"             =>          "required"
+            "phone"             =>          "required",
         ]);
 
         if($validator->fails()) {
-            return response()->json(["status" => "failed", "message" => "validation_error", "errors" => $validator->errors()]);
+            return response()->json(["status" => "failed", "message" => "Validator Error", "errors" => $validator->errors()],401);
+        }
+        $validate_username = Validator::make($request->all(),[
+            "username" => "required|unique:users",
+        ]);
+        if($validate_username->fails()) {
+            return response()->json(["status" => "failed", "message" => "Username already existed", "errors" => $validator->errors()],401);
+        }
+        $validate_email = Validator::make($request->all(),[
+            "email" => "required|email|unique:users",
+        ]);
+        if($validate_email->fails()) {
+            return response()->json(["status" => "failed", "message" => "Email already existed", "errors" => $validator->errors()],401);
         }
 
         $username               =       $request->username;
@@ -46,24 +58,28 @@ class UserController extends Controller
             "full_name"          =>          $request->name,
             "email"              =>          $request->email,
             "password"           =>          Hash::make($request->password),
-            "phone"              =>          $request->phone
+            "phone"              =>          $request->phone,
+            "picture"            =>          'default.png',
         );
 
         $user_status            =           User::where("email", $request->email)->first();
 
         if(!is_null($user_status)) {
-           return response()->json(["status" => "failed", "success" => false, "message" => "Whoops! email already registered"]);
+           return response()->json(["status" => "failed", "success" => false, "message" => "Whoops! email already registered"],401);
         }
 
         $user                   =           User::create($userDataArray);
 
         if(!is_null($user)) {
-            return response()->json(["status" => $this->status_code, "success" => true, "message" => "Registration completed successfully", "data" => $user]);
+            return response()->json(["status" => $this->status_code, "success" => true, "message" => "Registration completed successfully", "data" => $user],200);
         }
 
         else {
-            return response()->json(["status" => "failed", "success" => false, "message" => "failed to register"]);
+            return response()->json(["status" => "failed", "success" => false, "message" => "failed to register"],401);
         }
+    }
+    public function showProfile(User $user){
+        return response()->json($user,200);
     }
 
 
@@ -78,7 +94,7 @@ class UserController extends Controller
         );
 
         if($validator->fails()) {
-            return response()->json(["status" => "failed", "validation_error" => $validator->errors()]);
+            return response()->json(["status" => "failed", "validation_error" => $validator->errors()],401);
         }
 
 
@@ -88,7 +104,7 @@ class UserController extends Controller
 
         // if email exists then we will check password for the same email
 
-        if(!is_null($email_status)) {
+        if($email_status) {
             $get_user = User::where("email", $request->email)->first();
             if(Hash::check($request->password, $get_user->password)){
                 $password_status =  "Password Correct";
@@ -100,24 +116,23 @@ class UserController extends Controller
             if(!is_null($password_status)) {
                 $user           =       $this->userDetail($request->email);
                 $accessToken = User::where('email',$request->email)->first()->createToken('Personal Token')->accessToken;
-                return response()->json(["status" => $this->status_code, "success" => true, "message" => "You have logged in successfully", "data" => $user, "access_token" => $accessToken]);
+                return response()->json(["status" => $this->status_code, "success" => true, "message" => "You have logged in successfully", "data" => $user, "access_token" => $accessToken],200);
             }
 
             else {
-                return response()->json(["status" => "failed", "success" => false, "message" => "Unable to login. Incorrect password."]);
+                return response()->json(["status" => "failed", "success" => false, "message" => "Unable to login. Incorrect password."],401);
             }
         }
-
         else {
-            return response()->json(["status" => "failed", "success" => false, "message" => "Unable to login. Email doesn't exist."]);
+            return response()->json(["status" => "failed", "success" => false, "message" => "Unable to login. Email doesn't exist."],401);
         }
     }
 
     // ------------------ [ User Detail ] ---------------------
-    public function userDetail($email) {
+    public function userDetail($username) {
         $user               =       array();
-        if($email != "") {
-            $user           =       User::where("email", $email)->first();
+        if($username != "") {
+            $user           =       User::where("username", $username)->first();
             return $user;
         }
     }
