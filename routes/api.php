@@ -7,6 +7,8 @@ use App\Http\Controllers\ImageController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdoptionController;
 use App\Http\Controllers\MomentController;
+use App\Http\Controllers\VaccineController;
+use App\Http\Controllers\LocationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,16 +34,28 @@ Route::post("signup", [UserController::class,'userSignUp']);
 Route::post("login", [UserController::class,'userLogin']);
 Route::get("adoption/",[AdoptionController::class,'showAll']);
 Route::get("adoption/detail/{adoption_id}",[AdoptionController::class,'getSpecificAdoption']);
+Route::get("adoption/detail/{adoption_id}/images",[AdoptionController::class,'getAdoptionImage']);
 Route::get("profile/adoption/{id_user}",[AdoptionController::class,'userAdoption']);
 Route::get("profile/moment/{id_user}",[MomentController::class,'getMoment']);
+Route::get("profile/vaccine/{id_user}",[VaccineController::class,'getVaccine']);
 Route::get("moment/{breeds_type}",[MomentController::class,'getMomentByBreeds']);
 Route::get("adoption/{adoption_id}/{count}",[AdoptionController::class,'adoptionImage']);
 Route::get("adoption/{type}",[AdoptionController::class,'show']);
+Route::get("location/cities",[LocationController::class,'getAllCities']);
+
 Route::get("adoption/{type}/{slug}",[AdoptionController::class,'show']);
 Route::get("image/{url}",[ImageController::class,'getImage']);
 Route::middleware('auth:api')->group(function(){
     Route::post('/upload/adoption', [AdoptionController::class, 'uploadAdoption'])->name('upload');
+    Route::post('/profile/{id_user}/update', [UserController::class, 'updateProfile'])->name('updateProfile');
+    Route::post('/profile/{id_user}/moment/{id_moment}', [MomentController::class, 'patchMoment'])->name('patchMoment');
+    Route::delete('/profile/{id_user}/moment/{id_moment}', [MomentController::class, 'deleteMoment'])->name('deleteMoment');
+    Route::delete('/profile/{id_user}/vaccine/{id_vaccine}', [VaccineController::class, 'deleteVaccine'])->name('deleteVaccine');
+    Route::delete('/profile/{id_user}/adoption/{id_adoption}', [AdoptionController::class, 'deleteAdoption'])->name('deleteAdoption');
     Route::post('/upload/moment', [MomentController::class, 'uploadMoment'])->name('uploadMoment');
+    Route::post('/upload/vaccine', [VaccineController::class, 'uploadVaccine'])->name('uploadVaccine');
+    Route::get('/edit/moment/{id}', [MomentController::class, 'getMomentByID'])->name('editMoment');
+    Route::get('/profile/{id}/information', [UserController::class, 'getUserData'])->name('getUserData');
     Route::post("adoption",[AdoptionController::class,'create']);
     Route::patch("user/{id}",[UserController::class,'updateProfile']);
 });

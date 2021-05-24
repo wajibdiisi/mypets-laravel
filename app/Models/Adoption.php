@@ -25,4 +25,5 @@ class Adoption extends Model
         'picture'
     ];
 
+
 }

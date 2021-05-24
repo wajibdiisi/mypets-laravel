@@ -5,20 +5,21 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Moment extends Model
+class Vaccine extends Model
 {
     use HasFactory;
-    protected $table = 'share_moment';
+    protected $table = 'vaksin';
     protected $fillable = [
         'id_user',
-        'title',
+        'name',
         'description',
-        'animal_name',
-        'animal_type',
-        'location',
-        'gender',
-        'picture'
+        'animal',
+        'age',
+        'date',
+        'next_vaksin',
+        'vaksin_type',
+        'picture',
+        'gender'
     ];
     protected $primary_key = 'id';
-
 }

@@ -6,50 +6,52 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Moment;
 use App\Models\ApiToken;
-use App\Models\MomentImage;
+use App\Models\Vaccine;
 use Auth;
 
 use Illuminate\Support\Facades\Validator;
 use Storage;
 
-class MomentController extends Controller
+class VaccineController extends Controller
 {
-    public function uploadMoment(Request $request){
+    public function uploadVaccine(Request $request){
         $validator              =        Validator::make($request->all(), [
-        "title"          =>          "required",
+        "name"          =>          "required",
         "user_id"          => "required",
         "animal_name"   =>          "required",
         "desc"             =>          "required",
-        "type"          =>          "required",
-        "loc"           =>          "required",
+        "age"          =>          "required",
+        "date"           =>          "required",
+        "next_vaccine"  =>          "required",
+        "vaccine_type"      => "required",
     ]);
 
         if($validator->fails()) {
         return response()->json(["status" => "failed", "message" => "validation_error", "errors" => $validator->errors()]);
         }
         $owner = User::where('id',$request->user_id)->first();
+
         $array = array(
             "id_user"          => $owner->id,
-            "title"          =>          $request->title,
+            "name"          =>          $request->name,
             "description"             =>          $request->desc,
-            "animal_name"   =>          $request->animal_name,
+            "animal"   =>          $request->animal_name,
             "gender"    => $request->gender,
-            "animal_type"          =>          $request->type,
-            "location"           =>          $request->loc
+            "age"    => $request->age,
+            "vaksin_type"          =>          $request->vaccine_type,
+            "date"           =>          $request->date,
+            "next_vaksin"           =>          $request->next_vaccine,
         );
-        $moment = Moment::create($array);
+        $vaccine = Vaccine::create($array);
+
         $i = 1;
         foreach($request->images as $image){
-        $imagePath = Storage::disk('public')->put('Moment'. '/' . $owner->id. '/' . $request->title . '/' , $image);
+        $imagePath = Storage::disk('public')->put('Vaccine'. '/' . $owner->id. '/' . $request->title . '/' , $image);
         if($i == 1){
-            Moment::where('id',$moment->id)->update(['picture' =>  $imagePath]);
+            Vaccine::where('id',$vaccine->id)->update(['picture' =>  $imagePath]);
         }
-        MomentImage::create([
-            'moment_id' => $moment->id,
-            'img' => $imagePath,
-            'caption' => 'tes'
-            ]);
         }
+        return response()->json(["status" => "Success", "message" => "Data Inputed Successfully"], 200);
         /*$fileUpload = new FileUpload;
 
         if($request->file()) {
@@ -64,15 +66,15 @@ class MomentController extends Controller
         }
         */
    }
-   public function getMoment($username){
+   public function getVaccine($username){
         $user = User::where('username',$username)->first();
-        $moment = Moment::where('id_user',$user->id)->get();
-        foreach($moment as &$adopt){
+        $vaccine = Vaccine::where('id_user',$user->id)->get();
+        foreach($vaccine as &$adopt){
             $adopt->owner  = $user->full_name;
             $adopt->owner_avatar = $user->picture;
 
         };
-        return $moment;
+        return $vaccine;
    }
    public function getMomentByID($id){
        $moment = Moment::where('id',$id)->first();
@@ -116,26 +118,26 @@ public function patchMoment(Request $request,$id_user,$id_moment){
         return response()->json($array,200);
     }
 }
-    public function deleteMoment(Request $request,$id_user,$id_moment){
+public function deleteVaccine(Request $request,$id_user,$id_vaccine){
 
-        $auth_header = explode(' ', $request->bearerToken());
-        $token = $auth_header[0];
-        $token_parts = explode('.', $token);
-        $token_header = $token_parts[1];
-        $token_header_json = base64_decode($token_header);
-        $token_header_array = json_decode($token_header_json, true);
-        $user_token = $token_header_array['jti'];
-        $moment = Moment::where('id',$id_moment)->first();
-        $user = ApiToken::where('id', $user_token)->first();
-        if($moment->id_user == $user->user_id)
-        {
-            $id = $moment->id;
-            $moment->delete();
-            response()->json(["id" => $id, "status" => "success", "message" => "Data Deleted Successfully"],200);
-            return $user;
-        }else{
-            return response()->json(["status" => "failed", "message" => "Unauthorized"],422);
-        }
-        ;
+    $auth_header = explode(' ', $request->bearerToken());
+    $token = $auth_header[0];
+    $token_parts = explode('.', $token);
+    $token_header = $token_parts[1];
+    $token_header_json = base64_decode($token_header);
+    $token_header_array = json_decode($token_header_json, true);
+    $user_token = $token_header_array['jti'];
+    $moment = Vaccine::where('id',$id_vaccine)->first();
+    $user = ApiToken::where('id', $user_token)->first();
+    if($moment->id_user == $user->user_id)
+    {
+        $id = $moment->id;
+        $moment->delete();
+        response()->json(["id" => $id, "status" => "success", "message" => "Data Deleted Successfully"],200);
+        return $user;
+    }else{
+        return response()->json(["status" => "failed", "message" => "Unauthorized"],422);
     }
+    ;
+}
 }

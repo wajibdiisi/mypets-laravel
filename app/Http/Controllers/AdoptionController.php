@@ -8,7 +8,9 @@ use App\Models\AdoptionImage;
 use App\Models\User;
 use App\Models\Moment;
 use App\Models\MomentImage;
+use App\Models\ApiToken;
 use Storage;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 
 class AdoptionController extends Controller
@@ -107,6 +109,7 @@ class AdoptionController extends Controller
    }
 
 
+
     public function uploadAdoption(Request $request){
             $validator              =        Validator::make($request->all(), [
             "name"          =>          "required",
@@ -181,6 +184,10 @@ class AdoptionController extends Controller
     {
         //
     }
+    public function getAdoptionImage($id){
+        $images = AdoptionImage::where('adoption_id',$id)->get();
+        return $images;
+    }
 
     /**
      * Display the specified resource.
@@ -190,7 +197,13 @@ class AdoptionController extends Controller
      */
     public function getSpecificAdoption($adoption_id){
         $adopt = Adoption::where('id',$adoption_id)->first();
-        $adopt->user = User::where('id',$adopt->id_user)->first();
+        $adopt->time = Carbon::parse($adopt->created_at)->format('l, d-M-Y H:i:s');
+        $user = User::where('id',$adopt->id_user)->first();
+        $adopt->email = $user->email;
+        $adopt->phone = $user->phone;
+        $adopt->picture = $user->picture;
+        $adopt->full_name = $user->full_name;
+        $adopt->username = $user->username;
         return $adopt;
     }
     public function show($type, $slug = NULL)
@@ -233,6 +246,28 @@ class AdoptionController extends Controller
 
         };
         return $adoption;
+    }
+    public function deleteAdoption(Request $request,$id_user,$id_adoption){
+
+        $auth_header = explode(' ', $request->bearerToken());
+        $token = $auth_header[0];
+        $token_parts = explode('.', $token);
+        $token_header = $token_parts[1];
+        $token_header_json = base64_decode($token_header);
+        $token_header_array = json_decode($token_header_json, true);
+        $user_token = $token_header_array['jti'];
+        $moment = Adoption::where('id',$id_adoption)->first();
+        $user = ApiToken::where('id', $user_token)->first();
+        if($moment->id_user == $user->user_id)
+        {
+            $id = $moment->id;
+            $moment->delete();
+            response()->json(["id" => $id, "status" => "success", "message" => "Data Deleted Successfully"],200);
+            return $user;
+        }else{
+            return response()->json(["status" => "failed", "message" => "Unauthorized"],422);
+        }
+        ;
     }
 
     /**
