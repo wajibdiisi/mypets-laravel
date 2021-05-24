@@ -10,6 +10,7 @@ use App\Models\Moment;
 use App\Models\MomentImage;
 use App\Models\ApiToken;
 use Storage;
+use Indonesia;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 
@@ -147,7 +148,7 @@ class AdoptionController extends Controller
             foreach($request->images as $image){
             $fileName = $i .  '.' . $image->getClientOriginalExtension();
 
-            $imagePath = Storage::disk('public')->put('Adoption'. '/' . $owner->id. '/' . '/'. $request->name . '/' , $image);
+            $imagePath = Storage::disk('s3')->put('Adoption'. '/' . $owner->id. '/' . $request->name , $image);
             if($i == 1){
                 $adopt->update(['picture' =>  $imagePath]);
             }
