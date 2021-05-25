@@ -25,7 +25,6 @@ class VaccineController extends Controller
         "next_vaccine"  =>          "required",
         "vaccine_type"      => "required",
     ]);
-
         if($validator->fails()) {
         return response()->json(["status" => "failed", "message" => "validation_error", "errors" => $validator->errors()]);
         }
@@ -46,7 +45,7 @@ class VaccineController extends Controller
 
         $i = 1;
         foreach($request->images as $image){
-        $imagePath = Storage::disk('public')->put('Vaccine'. '/' . $owner->id. '/' . $request->title . '/' , $image);
+        $imagePath = Storage::disk('s3')->put('Vaccine'. '/' . $owner->id. '/' . $vaccine->id, $image);
         if($i == 1){
             Vaccine::where('id',$vaccine->id)->update(['picture' =>  $imagePath]);
         }

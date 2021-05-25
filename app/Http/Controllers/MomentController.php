@@ -25,7 +25,7 @@ class MomentController extends Controller
     ]);
 
         if($validator->fails()) {
-        return response()->json(["status" => "failed", "message" => "validation_error", "errors" => $validator->errors()]);
+        return response()->json(["status" => "failed", "message" => "validation_error", "errors" => $validator->errors()],422);
         }
         $owner = User::where('id',$request->user_id)->first();
         $array = array(
@@ -40,15 +40,16 @@ class MomentController extends Controller
         $moment = Moment::create($array);
         $i = 1;
         foreach($request->images as $image){
-        $imagePath = Storage::disk('public')->put('Moment'. '/' . $owner->id. '/' . $request->title . '/' , $image);
+        $imagePath = Storage::disk('s3')->put('Moment'. '/' . $owner->id. '/' . $request->title , $image);
         if($i == 1){
-            Moment::where('id',$moment->id)->update(['picture' =>  $imagePath]);
+            $moment->update(['picture' =>  $imagePath]);
         }
         MomentImage::create([
             'moment_id' => $moment->id,
             'img' => $imagePath,
             'caption' => 'tes'
             ]);
+            $i++;
         }
         /*$fileUpload = new FileUpload;
 
@@ -89,6 +90,16 @@ class MomentController extends Controller
     return $moment;
 }
 public function patchMoment(Request $request,$id_user,$id_moment){
+    $auth_header = explode(' ', $request->bearerToken());
+        $token = $auth_header[0];
+        $token_parts = explode('.', $token);
+        $token_header = $token_parts[1];
+        $token_header_json = base64_decode($token_header);
+        $token_header_array = json_decode($token_header_json, true);
+        $user_token = $token_header_array['jti'];
+        $moment = Moment::where('id',$id_moment)->first();
+        $user = ApiToken::where('id', $user_token)->first();
+        if($moment->id_user == $user->user_id){
     $validator              =        Validator::make($request->all(), [
         "title"          =>          "required",
         "user_id"          => "required",
@@ -114,6 +125,9 @@ public function patchMoment(Request $request,$id_user,$id_moment){
         );
         $moment->update($array);
         return response()->json($array,200);
+    }
+    }else {
+        return response()->json(['message' => "Unauthorized Access"],422);
     }
 }
     public function deleteMoment(Request $request,$id_user,$id_moment){

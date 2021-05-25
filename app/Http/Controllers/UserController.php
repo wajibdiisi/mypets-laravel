@@ -181,7 +181,7 @@ class UserController extends Controller
         );
         $updateuser->update($array);
         foreach($request->images as $image){
-            $imagePath = Storage::disk('public')->put('Profile'. '/' . $updateuser->id. '/' . $updateuser->username . '/' , $image);
+            $imagePath = Storage::disk('s3')->put('Profile'. '/' . $updateuser->id. '/' . $updateuser->username, $image);
             $updateuser->update(['picture' =>  $imagePath]);
             }
 

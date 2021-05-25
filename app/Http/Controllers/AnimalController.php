@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Animal;
 use App\Models\Animaltype;
 use App\Models\DogDetail;
+use App\Models\CatDetail;
 
 class animalController extends Controller
 {
@@ -63,6 +64,8 @@ class animalController extends Controller
     public function showAnimalDetail($type,$slug){
         if($type == "dog"){
             return DogDetail::where('slug',$slug)->get();
+        }else if ($type == "cat"){
+            return CatDetail::where('slug',$slug)->first();
         }
     }
 

@@ -5,10 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Adoption;
 use App\Models\AdoptionImage;
+use App\Models\ApiToken;
 use App\Models\User;
 use App\Models\Moment;
 use App\Models\MomentImage;
-use App\Models\ApiToken;
 use Storage;
 use Indonesia;
 use Carbon\Carbon;
@@ -126,13 +126,13 @@ class AdoptionController extends Controller
         ]);
 
             if($validator->fails()) {
-            return response()->json(["status" => "failed", "message" => "validation_error", "errors" => $validator->errors()]);
+            return response()->json(["status" => "failed", "message" => "validation_error", "errors" => $validator->errors()],422);
             }
             $owner = User::where('id',$request->user_id)->first();
             $adoptionDataArray = array(
                 "name"          =>          $request->name,
                 "description"             =>          $request->desc,
-                "animal_name"          =>          "Dog",
+                "animal_name"          =>         $request->animal_name,
                 "animal_type"          =>          $request->type,
                 "gender"           =>          $request->gender,
                 "color"           =>          $request->color,
@@ -181,9 +181,56 @@ class AdoptionController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
-        //
+    public function patchAdoption(Request $request,$id_user,$id_adoption){
+        $auth_header = explode(' ', $request->bearerToken());
+        $token = $auth_header[0];
+        $token_parts = explode('.', $token);
+        $token_header = $token_parts[1];
+        $token_header_json = base64_decode($token_header);
+        $token_header_array = json_decode($token_header_json, true);
+        $user_token = $token_header_array['jti'];
+        $adoption = Adoption::where('id',$id_adoption)->first();
+        $user = ApiToken::where('id', $user_token)->first();
+        if($adoption->id_user == $user->user_id){
+        $validator              =        Validator::make($request->all(), [
+            "name"          =>          "required",
+            "animal_name"   =>          "required",
+            "desc"             =>          "required",
+            "type"          =>          "required",
+            "gender"           =>          "required",
+            "color"           =>          "required",
+            "loc"           =>          "required",
+            "body"           =>          "required",
+            "health"           =>          "required",
+            "images"          => "required",
+    ]);
+
+        if($validator->fails()) {
+        return response()->json(["status" => "failed", "message" => "validation_error", "errors" => $validator->errors()],422);
+    }
+    $adoption = Adoption::where('id',$id_adoption)->first();
+    $owner = User::where('id',$request->user_id)->first();
+    if($id_user == $adoption->id_user){
+        $array = array(
+            "name"          =>          $request->name,
+                "description"             =>          $request->desc,
+                "animal_name"          =>          $request->animal_name,
+                "animal_type"          =>          $request->type,
+                "gender"           =>          $request->gender,
+                "color"           =>          $request->color,
+                "location"           =>         $request->loc,
+                "body"           =>          $request->body,
+                "age"           => $request->age,
+                "health"           =>          $request->health,
+                "owner"             => $owner->full_name,
+                "id_user"       => $owner->id,
+        );
+        $adoption->update($array);
+        return response()->json($array,200);
+    }
+    }else {
+        return response()->json(['message' => "Unauthorized Access"],422);
+    }
     }
     public function getAdoptionImage($id){
         $images = AdoptionImage::where('adoption_id',$id)->get();
@@ -257,12 +304,12 @@ class AdoptionController extends Controller
         $token_header_json = base64_decode($token_header);
         $token_header_array = json_decode($token_header_json, true);
         $user_token = $token_header_array['jti'];
-        $moment = Adoption::where('id',$id_adoption)->first();
+        $adoption = Adoption::where('id',$id_adoption)->first();
         $user = ApiToken::where('id', $user_token)->first();
-        if($moment->id_user == $user->user_id)
+        if($adoption->id_user == $user->user_id)
         {
-            $id = $moment->id;
-            $moment->delete();
+            $id = $adoption->id;
+            $adoption->delete();
             response()->json(["id" => $id, "status" => "success", "message" => "Data Deleted Successfully"],200);
             return $user;
         }else{
