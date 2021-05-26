@@ -258,7 +258,7 @@ class AdoptionController extends Controller
     {
         $adoption = new Object();
         if($type && $slug === null){
-            $adoption = Adoption::where('type',$type)->get();
+            $adoption = Adoption::with('image')->where('type',$type)->get();
 
         }elseif($type && $slug){
             $adoption = Adoption::where('type',$type)->where('subtype',$slug)->get();
@@ -273,11 +273,24 @@ class AdoptionController extends Controller
     }
     public function showAll()
     {
-        $adoption = Adoption::all();
+        $adoption = Adoption::with('user','image')->orderByDesc('created_at')->get();
         foreach($adoption as &$adopt){
             $user = User::where('id',$adopt->id_user)->first();
-            $adopt->owner  = $user->full_name;
-            $adopt->owner_avatar = $user->picture;
+
+            $adopt->upload_time = $adopt->created_at->diffForHumans();
+          //  $adopt->picture = 'http://localhost:8000/storage/' . $adopt->picture;
+
+        };
+        return $adoption;
+
+    }
+    public function latestAdoption($count)
+    {
+        $adoption = Adoption::with('user','image')->orderByDesc('created_at')->take($count)->get();
+        foreach($adoption as &$adopt){
+            $user = User::where('id',$adopt->id_user)->first();
+
+            $adopt->upload_time = $adopt->created_at->diffForHumans();
           //  $adopt->picture = 'http://localhost:8000/storage/' . $adopt->picture;
 
         };
@@ -286,7 +299,7 @@ class AdoptionController extends Controller
     }
     public function userAdoption($username){
         $user = User::where('username',$username)->first();
-        $adoption = Adoption::where('id_user',$user->id)->get();
+        $adoption = Adoption::with('image')->where('id_user',$user->id)->get();
         foreach($adoption as &$adopt){
             $adopt->owner  = $user->full_name;
             $adopt->owner_avatar = $user->picture;

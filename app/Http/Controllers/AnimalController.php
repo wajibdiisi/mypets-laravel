@@ -51,15 +51,32 @@ class animalController extends Controller
     {
         //
     }
+    public function addLike($slug,$user_id){
+        $animal = Animal::where('slug',$slug)->first();
+        if($animal->user()->where('user_id',$user_id)->exists())
+        $animal->user()->detach($user_id);
+        else{
+            $animal->user()->attach($user_id);
+        }
+    }
     public function showAll(){
-        return Animal::all();
+        return Animal::with('user','moments')->all();
+
+    }
+    public function getAnimalLikeUser($slug,$user_id){
+        $animal = Animal::where('slug',$slug)->first();
+        if($animal->user()->where('user_id',$user_id)->exists()){
+            return response()->json(["message" => true]);
+        }else{
+            return response()->json(["message" => false]);
+        }
     }
 
     public function showAnimal($type){
-        return Animal::where('type',$type)->get();
+        return Animal::with('moments','user')->where('type',$type)->get();
     }
     public function showAnimalSpecies($type,$slug){
-        return Animal::where('type',$type)->where('slug',$slug)->get();
+        return Animal::with('moments','user')->where('type',$type)->where('slug',$slug)->get();
     }
     public function showAnimalDetail($type,$slug){
         if($type == "dog"){

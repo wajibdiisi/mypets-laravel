@@ -23,7 +23,6 @@ class MomentController extends Controller
         "type"          =>          "required",
         "loc"           =>          "required",
     ]);
-
         if($validator->fails()) {
         return response()->json(["status" => "failed", "message" => "validation_error", "errors" => $validator->errors()],422);
         }
@@ -90,7 +89,7 @@ class MomentController extends Controller
     return $moment;
 }
 public function patchMoment(Request $request,$id_user,$id_moment){
-    $auth_header = explode(' ', $request->bearerToken());
+        $auth_header = explode(' ', $request->bearerToken());
         $token = $auth_header[0];
         $token_parts = explode('.', $token);
         $token_header = $token_parts[1];

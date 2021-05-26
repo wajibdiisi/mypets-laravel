@@ -91,24 +91,29 @@ class UserController extends Controller
 
         $validator          =       Validator::make($request->all(),
             [
-                "email"             =>          "required|email",
+                "email"             =>          "required",
                 "password"          =>          "required"
             ]
         );
 
         if($validator->fails()) {
-            return response()->json(["status" => "failed", "validation_error" => $validator->errors()],401);
+            return response()->json(["status" => "failed", "validation_error" => $validator->errors()],422);
         }
-
+        $login_type = filter_var($request->email, FILTER_VALIDATE_EMAIL )
+        ? 'email'
+        : 'username';
 
         // check if entered email exists in db
+        if($login_type == 'email'){
         $email_status       =       User::where("email", $request->email)->first();
-
+        }else if($login_type == 'username'){
+            $email_status       =       User::where("username", $request->email)->first();
+        }
 
         // if email exists then we will check password for the same email
 
         if($email_status) {
-            $get_user = User::where("email", $request->email)->first();
+            $get_user = User::where("email", $email_status->email)->first();
             if(Hash::check($request->password, $get_user->password)){
                 $password_status =  "Password Correct";
             }else{
@@ -118,7 +123,7 @@ class UserController extends Controller
             // if password is correct
             if(!is_null($password_status)) {
                 $user           =       $this->userDetail($request->email);
-                $accessToken = User::where('email',$request->email)->first()->createToken('Personal Token')->accessToken;
+                $accessToken = User::where('email',$get_user->email)->first()->createToken('Personal Token')->accessToken;
                 return response()->json(["status" => $this->status_code, "success" => true, "message" => "You have logged in successfully", "data" => $user, "access_token" => $accessToken],200);
             }
 

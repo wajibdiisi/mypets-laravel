@@ -33,6 +33,7 @@ Route::get("animal/{type}/details/{slug}",[animalController::class,'showAnimalDe
 Route::post("signup", [UserController::class,'userSignUp']);
 Route::post("login", [UserController::class,'userLogin']);
 Route::get("adoption/",[AdoptionController::class,'showAll']);
+Route::get("adoption/{count}",[AdoptionController::class,'latestAdoption']);
 Route::get("adoption/detail/{adoption_id}",[AdoptionController::class,'getSpecificAdoption']);
 Route::get("adoption/detail/{adoption_id}/images",[AdoptionController::class,'getAdoptionImage']);
 Route::get("profile/adoption/{id_user}",[AdoptionController::class,'userAdoption']);
@@ -54,6 +55,8 @@ Route::middleware('auth:api')->group(function(){
     Route::delete('/profile/{id_user}/adoption/{id_adoption}', [AdoptionController::class, 'deleteAdoption'])->name('deleteAdoption');
     Route::post('/upload/moment', [MomentController::class, 'uploadMoment'])->name('uploadMoment');
     Route::post('/upload/vaccine', [VaccineController::class, 'uploadVaccine'])->name('uploadVaccine');
+    Route::post('/animal/like/{slug}/{user_id}', [AnimalController::class, 'addLike'])->name('addLike');
+    Route::get('/animal/like/{slug}/{user_id}', [AnimalController::class, 'getAnimalLikeUser'])->name('getAnimalLikeUser');
     Route::get('/edit/moment/{id}', [MomentController::class, 'getMomentByID'])->name('editMoment');
     Route::get('/profile/{id}/information', [UserController::class, 'getUserData'])->name('getUserData');
     Route::post("adoption",[AdoptionController::class,'create']);
