@@ -182,6 +182,7 @@ class AdoptionController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function patchAdoption(Request $request,$id_user,$id_adoption){
+
         $auth_header = explode(' ', $request->bearerToken());
         $token = $auth_header[0];
         $token_parts = explode('.', $token);
@@ -202,7 +203,6 @@ class AdoptionController extends Controller
             "loc"           =>          "required",
             "body"           =>          "required",
             "health"           =>          "required",
-            "images"          => "required",
     ]);
 
         if($validator->fails()) {
@@ -224,6 +224,7 @@ class AdoptionController extends Controller
                 "health"           =>          $request->health,
                 "owner"             => $owner->full_name,
                 "id_user"       => $owner->id,
+                "adoption_status"   => $request->adoption_status,
         );
         $adoption->update($array);
         return response()->json($array,200);
@@ -273,7 +274,7 @@ class AdoptionController extends Controller
     }
     public function showAll()
     {
-        $adoption = Adoption::with('user','image')->orderByDesc('created_at')->get();
+        $adoption = Adoption::with('user','image')->where('adoption_status',0)->orderByDesc('created_at')->get();
         foreach($adoption as &$adopt){
             $user = User::where('id',$adopt->id_user)->first();
 
@@ -340,6 +341,14 @@ class AdoptionController extends Controller
     public function edit($id)
     {
         //
+    }
+    public function addInterest($user_id,$id_adoption){
+        $adopt = Adopt::find($id_adoption);
+        if($adopt->user()->where('user_id',$user_id)->exists()){
+        $adopt->interest()->detach($user_id);
+        }else{
+            $adopt->interest()->attach($user_id);
+        }
     }
 
     /**

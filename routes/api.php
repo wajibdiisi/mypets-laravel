@@ -47,12 +47,14 @@ Route::get("location/cities",[LocationController::class,'getAllCities']);
 Route::get("adoption/{type}/{slug}",[AdoptionController::class,'show']);
 Route::get("image/{url}",[ImageController::class,'getImage']);
 Route::middleware('auth:api')->group(function(){
+    Route::post('/adoption/{id_adoption}/{user_id}/interest', [AdoptionController::class, 'addInterest'])->name('addInterest');
     Route::post('/upload/adoption', [AdoptionController::class, 'uploadAdoption'])->name('upload');
     Route::post('/profile/{id_user}/update', [UserController::class, 'updateProfile'])->name('updateProfile');
     Route::post('/profile/{id_user}/moment/{id_moment}', [MomentController::class, 'patchMoment'])->name('patchMoment');
     Route::delete('/profile/{id_user}/moment/{id_moment}', [MomentController::class, 'deleteMoment'])->name('deleteMoment');
     Route::delete('/profile/{id_user}/vaccine/{id_vaccine}', [VaccineController::class, 'deleteVaccine'])->name('deleteVaccine');
     Route::delete('/profile/{id_user}/adoption/{id_adoption}', [AdoptionController::class, 'deleteAdoption'])->name('deleteAdoption');
+    Route::post('/profile/{id_user}/adoption/{id_adoption}', [AdoptionController::class, 'patchAdoption'])->name('patchAdoption');
     Route::post('/upload/moment', [MomentController::class, 'uploadMoment'])->name('uploadMoment');
     Route::post('/upload/vaccine', [VaccineController::class, 'uploadVaccine'])->name('uploadVaccine');
     Route::post('/animal/like/{slug}/{user_id}', [AnimalController::class, 'addLike'])->name('addLike');

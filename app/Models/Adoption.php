@@ -23,13 +23,17 @@ class Adoption extends Model
         'health',
         'location',
         'id_user',
-        'picture'
+        'picture',
+        'adoption_status'
     ];
     public function image(){
         return $this->hasMany(AdoptionImage::class,'adoption_id','id');
     }
     public function user(){
         return $this->belongsTo(User::class,'id_user','id');
+    }
+    public function interest(){
+        return $this->belongsToMany(User::class,'adoption_user');
     }
 
 

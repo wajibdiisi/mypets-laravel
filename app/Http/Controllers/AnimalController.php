@@ -60,9 +60,10 @@ class animalController extends Controller
         }
     }
     public function showAll(){
-        return Animal::with('user','moments')->all();
+        return Animal::all();
 
     }
+
     public function getAnimalLikeUser($slug,$user_id){
         $animal = Animal::where('slug',$slug)->first();
         if($animal->user()->where('user_id',$user_id)->exists()){
