@@ -245,7 +245,7 @@ class AdoptionController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function getSpecificAdoption($adoption_id){
-        $adopt = Adoption::where('id',$adoption_id)->first();
+        $adopt = Adoption::with('interest')->where('id',$adoption_id)->first();
         $adopt->time = Carbon::parse($adopt->created_at)->format('l, d-M-Y H:i:s');
         $user = User::where('id',$adopt->id_user)->first();
         $adopt->email = $user->email;
@@ -342,9 +342,9 @@ class AdoptionController extends Controller
     {
         //
     }
-    public function addInterest($user_id,$id_adoption){
-        $adopt = Adopt::find($id_adoption);
-        if($adopt->user()->where('user_id',$user_id)->exists()){
+    public function addInterest($id_adoption,$user_id){
+        $adopt = Adoption::find($id_adoption);
+        if($adopt->interest()->where('user_id',$user_id)->exists()){
         $adopt->interest()->detach($user_id);
         }else{
             $adopt->interest()->attach($user_id);

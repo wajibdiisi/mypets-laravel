@@ -20,5 +20,8 @@ class Moment extends Model
         'picture'
     ];
     protected $primary_key = 'id';
+    public function image(){
+        return $this->hasMany(MomentImage::class,'moment_id');
+    }
 
 }

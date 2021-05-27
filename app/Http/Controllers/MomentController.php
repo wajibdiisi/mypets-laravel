@@ -75,7 +75,7 @@ class MomentController extends Controller
         return $moment;
    }
    public function getMomentByID($id){
-       $moment = Moment::where('id',$id)->first();
+       $moment = Moment::with('image')->where('id',$id)->first();
         return $moment;
    }
    public function getMomentByBreeds($breeds_type){

@@ -26,7 +26,7 @@ class VaccineController extends Controller
         "vaccine_type"      => "required",
     ]);
         if($validator->fails()) {
-        return response()->json(["status" => "failed", "message" => "validation_error", "errors" => $validator->errors()]);
+        return response()->json(["status" => "failed", "message" => "validation_error", "errors" => $validator->errors()],422);
         }
         $owner = User::where('id',$request->user_id)->first();
 
@@ -42,13 +42,13 @@ class VaccineController extends Controller
             "next_vaksin"           =>          $request->next_vaccine,
         );
         $vaccine = Vaccine::create($array);
-
         $i = 1;
         foreach($request->images as $image){
         $imagePath = Storage::disk('s3')->put('Vaccine'. '/' . $owner->id. '/' . $vaccine->id, $image);
         if($i == 1){
-            Vaccine::where('id',$vaccine->id)->update(['picture' =>  $imagePath]);
+            $vaccine->update(['picture' =>  $imagePath]);
         }
+        $i++;
         }
         return response()->json(["status" => "Success", "message" => "Data Inputed Successfully"], 200);
         /*$fileUpload = new FileUpload;
@@ -64,6 +64,7 @@ class VaccineController extends Controller
             return response()->json(['success'=>'File uploaded successfully.']);
         }
         */
+
    }
    public function getVaccine($username){
         $user = User::where('username',$username)->first();
