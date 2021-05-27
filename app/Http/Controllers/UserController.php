@@ -174,9 +174,20 @@ class UserController extends Controller
     $token_header_array = json_decode($token_header_json, true);
     $user_token = $token_header_array['jti'];
     $user = ApiToken::where('id', $user_token)->first();
-
+    $update_user = User::find($user->user_id);
     if($user->user_id == $id_user)
     {
+        $validator              =        Validator::make($request->all(), [
+            "email"             =>          'required|email|unique:users,email,'.$update_user->id,
+            "full_name"         =>          "required",
+            "phone"             =>          "required",
+            "location"          =>          "required",
+        ]);
+
+        if($validator->fails()) {
+            return response()->json($validator->errors(),422);
+        }
+
         $updateuser = User::where('id',$id_user)->first();
         $array = array(
             "full_name"          =>          $request->full_name,
@@ -184,11 +195,13 @@ class UserController extends Controller
             "location"          =>           $request->location,
             "email"             =>          $request->email,
         );
+
         $updateuser->update($array);
+        if($request->images){
         foreach($request->images as $image){
             $imagePath = Storage::disk('s3')->put('Profile'. '/' . $updateuser->id. '/' . $updateuser->username, $image);
             $updateuser->update(['picture' =>  $imagePath]);
-            }
+            }}
 
 }else{
         return response()->json(["status" => "failed", "message" => "Unauthorized"],422);

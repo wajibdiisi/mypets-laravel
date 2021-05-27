@@ -126,7 +126,7 @@ class AdoptionController extends Controller
         ]);
 
             if($validator->fails()) {
-            return response()->json(["status" => "failed", "message" => "validation_error", "errors" => $validator->errors()],422);
+            return response()->json($validator->errors(),422);
             }
             $owner = User::where('id',$request->user_id)->first();
             $adoptionDataArray = array(
@@ -245,7 +245,7 @@ class AdoptionController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function getSpecificAdoption($adoption_id){
-        $adopt = Adoption::with('interest')->where('id',$adoption_id)->first();
+        $adopt = Adoption::with('interest','user')->where('id',$adoption_id)->first();
         $adopt->time = Carbon::parse($adopt->created_at)->format('l, d-M-Y H:i:s');
         $user = User::where('id',$adopt->id_user)->first();
         $adopt->email = $user->email;

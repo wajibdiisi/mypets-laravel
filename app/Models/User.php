@@ -29,6 +29,7 @@ class User extends Authenticatable
         'location',
         'picture',
         'password',
+        'whatsapp'
     ];
     protected $primaryKey = 'id';
 

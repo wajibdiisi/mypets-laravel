@@ -6,9 +6,11 @@ use App\Http\Controllers\AnimalController;
 use App\Http\Controllers\ImageController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdoptionController;
+use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\MomentController;
 use App\Http\Controllers\VaccineController;
 use App\Http\Controllers\LocationController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -25,6 +27,8 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 Route::get("profile/{username}",[UserController::class,'userDetail']);
+Route::get("article/{category}",[ArticleController::class,'showArticle']);
+Route::get("article/{id}/details",[ArticleController::class,'specificArticle']);
 Route::get("user/{user_id}",[UserController::class,'userDetail']);
 Route::get("animal",[AnimalController::class,'showAll']);
 Route::get("animal/{type}",[AnimalController::class,'showAnimal']);
