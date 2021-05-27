@@ -74,7 +74,7 @@ class animalController extends Controller
     }
 
     public function showAnimal($type){
-        return Animal::where('type',$type)->get();
+        return Animal::with('moments','user')->where('type',$type)->get();
     }
     public function showAnimalSpecies($type,$slug){
         return Animal::with('moments','user')->where('type',$type)->where('slug',$slug)->get();
