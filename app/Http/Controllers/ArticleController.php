@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Article;
+use Carbon\Carbon;
 
 class ArticleController extends Controller
 {
@@ -11,6 +12,12 @@ class ArticleController extends Controller
         return Article::where('category',$category)->get();
     }
     public function specificArticle($id){
-        return Article::find($id);
+        $article = Article::find($id);
+        if($article){
+            $article->publish_time = $article->created_at->diffForHumans();
+            return $article;
+        }else{
+            return response()->json(["message" => "Page Not Found"],404);
+        }
     }
 }

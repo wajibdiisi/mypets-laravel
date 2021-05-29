@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
+use App\Models\User;
 class Moment extends Model
 {
     use HasFactory;
@@ -17,11 +17,15 @@ class Moment extends Model
         'animal_type',
         'location',
         'gender',
-        'picture'
+        'picture',
+        'date'
     ];
     protected $primary_key = 'id';
     public function image(){
         return $this->hasMany(MomentImage::class,'moment_id');
+    }
+    public function user(){
+        return $this->belongsTo(User::class,'id_user','id');
     }
 
 }

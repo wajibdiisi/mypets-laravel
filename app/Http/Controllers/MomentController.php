@@ -8,6 +8,7 @@ use App\Models\Moment;
 use App\Models\ApiToken;
 use App\Models\MomentImage;
 use Auth;
+use Carbon\Carbon;
 
 use Illuminate\Support\Facades\Validator;
 use Storage;
@@ -22,6 +23,8 @@ class MomentController extends Controller
         "desc"             =>          "required",
         "type"          =>          "required",
         "loc"           =>          "required",
+        "date"              =>      "required",
+        "images"         =>          "required"
     ]);
         if($validator->fails()) {
         return response()->json(["status" => "failed", "message" => "validation_error", "errors" => $validator->errors()],422);
@@ -34,6 +37,7 @@ class MomentController extends Controller
             "animal_name"   =>          $request->animal_name,
             "gender"    => $request->gender,
             "animal_type"          =>          $request->type,
+            "date"                  => $request->date,
             "location"           =>          $request->loc
         );
         $moment = Moment::create($array);
@@ -64,6 +68,21 @@ class MomentController extends Controller
         }
         */
    }
+   public function getSpecificMoment($id){
+            $moment = Moment::with('user','image')->where('id',$id)->first();
+            if($moment){
+                $moment->time = Carbon::parse($moment->created_at)->format('l, d-M-Y H:i:s');
+                $user = User::where('id',$moment->id_user)->first();
+                $moment->email = $user->email;
+                $moment->phone = $user->phone;
+                $moment->picture = $user->picture;
+                $moment->full_name = $user->full_name;
+                $moment->username = $user->username;
+                return $moment;
+    }else {
+        return response()->json(["message" => "Page Not Found"],404);
+    }
+   }
    public function getMoment($username){
         $user = User::where('username',$username)->first();
         $moment = Moment::where('id_user',$user->id)->get();
@@ -75,7 +94,7 @@ class MomentController extends Controller
         return $moment;
    }
    public function getMomentByID($id){
-       $moment = Moment::with('image')->where('id',$id)->first();
+       $moment = Moment::with('image','user')->where('id',$id)->first();
         return $moment;
    }
    public function getMomentByBreeds($breeds_type){
@@ -107,6 +126,7 @@ public function patchMoment(Request $request,$id_user,$id_moment){
         "gender"            => "required",
         "type"          =>          "required",
         "loc"           =>          "required",
+        "date"        =>          "required"
     ]);
 
         if($validator->fails()) {
@@ -120,7 +140,8 @@ public function patchMoment(Request $request,$id_user,$id_moment){
             "animal_name"   =>          $request->animal_name,
             "gender"    => $request->gender,
             "animal_type"          =>          $request->type,
-            "location"           =>          $request->loc
+            "location"           =>          $request->loc,
+            "date"          =>      $request->date
         );
         $moment->update($array);
         return response()->json($array,200);

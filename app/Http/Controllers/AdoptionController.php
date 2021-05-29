@@ -126,7 +126,7 @@ class AdoptionController extends Controller
         ]);
 
             if($validator->fails()) {
-            return response()->json($validator->errors(),422);
+                return response()->json(["status" => "failed", "message" => "validation_error", "errors" => $validator->errors()],422);
             }
             $owner = User::where('id',$request->user_id)->first();
             $adoptionDataArray = array(
@@ -206,7 +206,7 @@ class AdoptionController extends Controller
     ]);
 
         if($validator->fails()) {
-        return response()->json(["status" => "failed", "message" => "validation_error", "errors" => $validator->errors()],422);
+            return response()->json(["status" => "failed", "message" => "validation_error", "errors" => $validator->errors()],422);
     }
     $adoption = Adoption::where('id',$id_adoption)->first();
     $owner = User::where('id',$request->user_id)->first();
@@ -246,6 +246,7 @@ class AdoptionController extends Controller
      */
     public function getSpecificAdoption($adoption_id){
         $adopt = Adoption::with('interest','user')->where('id',$adoption_id)->first();
+        if($adopt){
         $adopt->time = Carbon::parse($adopt->created_at)->format('l, d-M-Y H:i:s');
         $user = User::where('id',$adopt->id_user)->first();
         $adopt->email = $user->email;
@@ -254,6 +255,9 @@ class AdoptionController extends Controller
         $adopt->full_name = $user->full_name;
         $adopt->username = $user->username;
         return $adopt;
+        }else {
+            return response()->json(["message" => "Page Not Found"],404);
+        }
     }
     public function show($type, $slug = NULL)
     {

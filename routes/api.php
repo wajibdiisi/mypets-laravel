@@ -39,6 +39,8 @@ Route::post("login", [UserController::class,'userLogin']);
 Route::get("adoption/",[AdoptionController::class,'showAll']);
 Route::get("adoption/{count}",[AdoptionController::class,'latestAdoption']);
 Route::get("adoption/detail/{adoption_id}",[AdoptionController::class,'getSpecificAdoption']);
+
+Route::get("moment/detail/{id}",[MomentController::class,'getSpecificMoment']);
 Route::get("adoption/detail/{adoption_id}/images",[AdoptionController::class,'getAdoptionImage']);
 Route::get("profile/adoption/{id_user}",[AdoptionController::class,'userAdoption']);
 Route::get("profile/moment/{id_user}",[MomentController::class,'getMoment']);
