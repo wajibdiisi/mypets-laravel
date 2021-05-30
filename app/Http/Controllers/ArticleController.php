@@ -14,7 +14,7 @@ class ArticleController extends Controller
     public function specificArticle($id){
         $article = Article::find($id);
         if($article){
-            $article->publish_time = $article->created_at->diffForHumans();
+
             return $article;
         }else{
             return response()->json(["message" => "Page Not Found"],404);

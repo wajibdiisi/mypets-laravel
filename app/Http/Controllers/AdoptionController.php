@@ -259,6 +259,43 @@ class AdoptionController extends Controller
             return response()->json(["message" => "Page Not Found"],404);
         }
     }
+    public function checkInterest($adoption_id,$user_id){
+        $adopt = Adoption::with('interest')->where('id',$adoption_id)->first();
+        if($adopt->interest()->where('user_id',$user_id)->exists()){
+            return response()->json(["message" => true]);
+        }else{
+            return response()->json(["message" => false]);
+        }
+    }
+    public function getAdoptionAuth(Request $request,$adoption_id){
+        $adopt = Adoption::with('interest','user')->where('id',$adoption_id)->first();
+        if($adopt){
+        $auth_header = explode(' ', $request->bearerToken());
+        $token = $auth_header[0];
+        $token_parts = explode('.', $token);
+        $token_header = $token_parts[1];
+        $token_header_json = base64_decode($token_header);
+        $token_header_array = json_decode($token_header_json, true);
+        $user_token = $token_header_array['jti'];
+        $user = ApiToken::where('id', $user_token)->first();
+        if($adopt->id_user == $user->user_id){
+            $adopt->time = Carbon::parse($adopt->created_at)->format('l, d-M-Y H:i:s');
+            $user = User::where('id',$adopt->id_user)->first();
+            $adopt->email = $user->email;
+            $adopt->phone = $user->phone;
+            $adopt->picture = $user->picture;
+            $adopt->full_name = $user->full_name;
+            $adopt->username = $user->username;
+        return $adopt;
+        }else{
+            return response()->json(['message' => "Unauthorized Access"],422);
+        }
+
+        }else {
+            return response()->json(["message" => "Page Not Found"],404);
+        }
+    }
+
     public function show($type, $slug = NULL)
     {
         $adoption = new Object();

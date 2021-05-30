@@ -81,9 +81,19 @@ class animalController extends Controller
     }
     public function showAnimalDetail($type,$slug){
         if($type == "dog"){
-            return DogDetail::where('slug',$slug)->get();
+            $dog = DogDetail::where('slug',$slug)->first();
+            if($dog){
+                return $dog;
+            }else {
+                return response()->json(["message" => "Page Not Found"],404);
+            }
         }else if ($type == "cat"){
-            return CatDetail::where('slug',$slug)->first();
+            $animal =  CatDetail::where('slug',$slug)->first();
+            if($animal){
+                return $animal;
+            }else {
+                return response()->json(["message" => "Page Not Found"],404);
+            }
         }
     }
 

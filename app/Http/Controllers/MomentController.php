@@ -93,10 +93,26 @@ class MomentController extends Controller
         };
         return $moment;
    }
-   public function getMomentByID($id){
+   public function getMomentByID(Request $request,$id){
        $moment = Moment::with('image','user')->where('id',$id)->first();
-        return $moment;
-   }
+        if($moment){
+            $auth_header = explode(' ', $request->bearerToken());
+            $token = $auth_header[0];
+            $token_parts = explode('.', $token);
+            $token_header = $token_parts[1];
+            $token_header_json = base64_decode($token_header);
+            $token_header_array = json_decode($token_header_json, true);
+            $user_token = $token_header_array['jti'];
+            $user = ApiToken::where('id', $user_token)->first();
+            if($moment->id_user == $user->user_id){
+                return $moment;
+            }else {
+                return response()->json(['message' => "Unauthorized Access"],422);
+            }
+        }else{
+            return response()->json(["message" => "Page Not Found"],404);
+        }
+    }
    public function getMomentByBreeds($breeds_type){
     $moment = Moment::where('animal_type',$breeds_type)->get();
     foreach($moment as &$adopt){

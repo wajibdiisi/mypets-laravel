@@ -10,6 +10,7 @@ use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\MomentController;
 use App\Http\Controllers\VaccineController;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\CareTrainingController;
 
 
 /*
@@ -47,8 +48,11 @@ Route::get("profile/moment/{id_user}",[MomentController::class,'getMoment']);
 Route::get("profile/vaccine/{id_user}",[VaccineController::class,'getVaccine']);
 Route::get("moment/{breeds_type}",[MomentController::class,'getMomentByBreeds']);
 Route::get("adoption/{adoption_id}/{count}",[AdoptionController::class,'adoptionImage']);
+Route::get("adoption/{adoption_id}/{user_id}/interest",[AdoptionController::class,'checkInterest']);
 Route::get("adoption/{type}",[AdoptionController::class,'show']);
 Route::get("location/cities",[LocationController::class,'getAllCities']);
+Route::get("care_training",[CareTrainingController::class,'showAll']);
+Route::get("care_training/{id}/details",[CareTrainingController::class,'getSpecificCare']);
 
 Route::get("adoption/{type}/{slug}",[AdoptionController::class,'show']);
 Route::get("image/{url}",[ImageController::class,'getImage']);
@@ -65,7 +69,8 @@ Route::middleware('auth:api')->group(function(){
     Route::post('/upload/vaccine', [VaccineController::class, 'uploadVaccine'])->name('uploadVaccine');
     Route::post('/animal/like/{slug}/{user_id}', [AnimalController::class, 'addLike'])->name('addLike');
     Route::get('/animal/like/{slug}/{user_id}', [AnimalController::class, 'getAnimalLikeUser'])->name('getAnimalLikeUser');
-    Route::get('/edit/moment/{id}', [MomentController::class, 'getMomentByID'])->name('editMoment');
+    Route::get('/auth/moment/{id}', [MomentController::class, 'getMomentByID'])->name('editMoment');
+    Route::get('/auth/adoption/{id}', [AdoptionController::class, 'getAdoptionAuth'])->name('editAdoption');
     Route::get('/profile/{id}/information', [UserController::class, 'getUserData'])->name('getUserData');
     Route::post("adoption",[AdoptionController::class,'create']);
     Route::patch("user/{id}",[UserController::class,'updateProfile']);
