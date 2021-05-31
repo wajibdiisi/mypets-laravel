@@ -139,8 +139,8 @@ class UserController extends Controller
     // ------------------ [ User Detail ] ---------------------
     public function userDetail($username) {
         $user               =       array();
-        if($username != "") {
-            $user           =       User::where("username", $username)->first();
+        $user           =       User::where("username", $username)->first();
+        if($user != "") {
             return $user;
         }else{
             return response()->json(["status" => "failed", "message" => "Not Found"],404);
