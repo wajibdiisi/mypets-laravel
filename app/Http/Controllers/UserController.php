@@ -155,7 +155,7 @@ class UserController extends Controller
     $token_header_array = json_decode($token_header_json, true);
     $user_token = $token_header_array['jti'];
     $user = ApiToken::where('id', $user_token)->first();
-    if($user->id_user == $id_user)
+    if($user->user_id == $id_user)
     {
         return User::where('id',$user->user_id)->first();
     }else{
@@ -167,6 +167,12 @@ class UserController extends Controller
 
     public function updateProfile(Request $request,$id_user){
         $auth_header = explode(' ', $request->bearerToken());
+        $whatsapp = 0;
+        if($request->whatsapp == 'false'){
+            $whatsapp = 0;
+        }else{
+            $whatsapp = 1;
+        }
     $token = $auth_header[0];
     $token_parts = explode('.', $token);
     $token_header = $token_parts[1];
@@ -187,6 +193,11 @@ class UserController extends Controller
         if($validator->fails()) {
             return response()->json($validator->errors(),422);
         }
+        if(!$request->whatsapp == 'false'){
+            $request->whatsapp = 0;
+        }else{
+            $request->whatsapp = 1;
+        }
 
         $updateuser = User::where('id',$id_user)->first();
         $array = array(
@@ -194,6 +205,7 @@ class UserController extends Controller
             "phone"             =>          $request->phone,
             "location"          =>           $request->location,
             "email"             =>          $request->email,
+            "whatsapp"          =>          $whatsapp,
         );
 
         $updateuser->update($array);
