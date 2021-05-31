@@ -85,16 +85,17 @@ class MomentController extends Controller
    }
    public function getMoment($username){
         $user = User::where('username',$username)->first();
-        $moment = Moment::where('id_user',$user->id)->get();
+        $moment = Moment::where('id_user',$user->id)->orderByDesc('created_at')->get();
         foreach($moment as &$adopt){
             $adopt->owner  = $user->full_name;
             $adopt->owner_avatar = $user->picture;
+            $adopt->publish_time = $adopt->created_at->diffForHumans();
 
         };
         return $moment;
    }
    public function getMomentByID(Request $request,$id){
-       $moment = Moment::with('image','user')->where('id',$id)->first();
+       $moment = Moment::with('image','user')->where('id',$id)->orderByDesc('created_at')->first();
         if($moment){
             $auth_header = explode(' ', $request->bearerToken());
             $token = $auth_header[0];
@@ -114,11 +115,12 @@ class MomentController extends Controller
         }
     }
    public function getMomentByBreeds($breeds_type){
-    $moment = Moment::where('animal_type',$breeds_type)->get();
+    $moment = Moment::where('animal_type',$breeds_type)->orderByDesc('created_at')->get();
     foreach($moment as &$adopt){
         $user = User::where('id',$adopt->id_user)->first();
         $adopt->owner  = $user->full_name;
         $adopt->owner_avatar = $user->picture;
+        $adopt->publish_time = $adopt->created_at->diffForHumans();
 
     };
     return $moment;
