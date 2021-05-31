@@ -315,10 +315,9 @@ class AdoptionController extends Controller
     }
     public function showAll()
     {
-        $adoption = Adoption::with('user','image')->where('adoption_status',0)->orderByDesc('created_at')->get();
+        $adoption = Adoption::with('user','image','interest')->where('adoption_status',0)->orderByDesc('created_at')->get();
         foreach($adoption as &$adopt){
-            $user = User::where('id',$adopt->id_user)->first();
-
+            $adopt->popularity = $adopt->interest()->count();
             $adopt->upload_time = $adopt->created_at->diffForHumans();
           //  $adopt->picture = 'http://localhost:8000/storage/' . $adopt->picture;
 
